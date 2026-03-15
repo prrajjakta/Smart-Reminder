@@ -1,4 +1,4 @@
-# 🌸 Remindly — Smart Reminder App
+# 🌸 Remindly - Smart Reminder App
 
 A habit-aware reminder web app that learns your scheduling preferences over time and surfaces the most relevant suggestions first.
 
