@@ -1,0 +1,50 @@
+[
+  {
+    "id": 8,
+    "title": "workout",
+    "category": "Health",
+    "task": "workout",
+    "time": "06:00",
+    "days": [
+      "Daily"
+    ],
+    "note": "",
+    "active": true
+  },
+  {
+    "id": 9,
+    "title": "moisturizer",
+    "category": "Skincare",
+    "task": "moisturizer",
+    "time": "07:00",
+    "days": [
+      "Daily"
+    ],
+    "note": "",
+    "active": true
+  },
+  {
+    "id": 10,
+    "title": "apply sunscreen",
+    "category": "Skincare",
+    "task": "apply_sunscreen",
+    "time": "10:00",
+    "days": [
+      "Daily"
+    ],
+    "note": "",
+    "active": true
+  },
+  {
+    "id": 11,
+    "title": "Check emails",
+    "category": "Study",
+    "task": "check_emails",
+    "time": "09:00",
+    "days": [
+      "Daily"
+    ],
+    "note": "",
+    "active": true
+  }
+]

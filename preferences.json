@@ -1,0 +1,21 @@
+{
+  "Fitness": {
+    "1_hour": 1,
+    "2_hours": 11,
+    "7_PM": 11,
+    "8_PM": 1
+  },
+  "Skincare": {
+    "short_routine": 14,
+    "30_min": 12
+  },
+  "Study": {
+    "later_today": 5,
+    "tomorrow_morning": 4,
+    "weekend": 1
+  },
+  "Health": {
+    "15_min": 1,
+    "30_min": 2
+  }
+}

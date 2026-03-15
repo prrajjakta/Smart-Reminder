@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Remindly</title>
+<style>
+:root {
+  --font-display: Georgia, 'Times New Roman', serif;
+  --font-body: 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  /* Pastel pink + sky blue palette */
+  --bg:        #fdf0f5;
+  --surface:   #ffffff;
+  --surface2:  #fce8f0;
+  --border:    #f0c8d8;
+  --border2:   #c8e4f8;
+
+  --pink:      #e8719a;
+  --pink-soft: #f5a8c4;
+  --pink-pale: #fce8f0;
+
+  --blue:      #5babd4;
+  --blue-soft: #93cde8;
+  --blue-pale: #ddf0fa;
+
+  --text:      #3a2535;
+  --muted:     #9b7a8a;
+  --danger:    #d95b6a;
+  --success:   #5bbca0;
+
+  --radius: 16px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* soft polka-dot background */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background-image: radial-gradient(circle, rgba(232,113,154,0.08) 1.5px, transparent 1.5px),
+                    radial-gradient(circle, rgba(91,171,212,0.08) 1.5px, transparent 1.5px);
+  background-size: 38px 38px, 38px 38px;
+  background-position: 0 0, 19px 19px;
+  pointer-events:none; z-index:0;
+}
+
+.app { position:relative; z-index:1; max-width:860px; margin:0 auto; padding:28px 20px 80px; }
+
+/* ── HEADER ── */
+header {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:36px;
+  padding: 14px 20px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(232,113,154,0.1);
+}
+.logo {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--pink);
+  letter-spacing: 0.5px;
+}
+.logo span { color: var(--blue); }
+
+.header-right { display:flex; align-items:center; gap:8px; }
+
+.nav-tabs {
+  display:flex; gap:4px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 4px;
+}
+.nav-tab {
+  font-family: var(--font-body);
+  font-size: 13px; font-weight: 600;
+  padding: 7px 16px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+}
+.nav-tab.active  { background: var(--pink); color: #fff; }
+.nav-tab:hover:not(.active) { background: var(--pink-pale); color: var(--pink); }
+
+#notif-btn {
+  background: var(--blue-pale);
+  border: 1.5px solid var(--border2);
+  border-radius: 10px;
+  width: 38px; height: 38px;
+  font-size: 17px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s;
+}
+#notif-btn:hover { border-color: var(--blue); background: #c4e5f5; }
+
+/* ── VIEWS ── */
+.view { display:none; }
+.view.active { display:block; animation: fadeUp .3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── HERO BANNER ── */
+.hero-banner {
+  background: linear-gradient(135deg, #fce8f0 0%, #ddf0fa 100%);
+  border: 1.5px solid var(--border);
+  border-radius: 24px;
+  padding: 28px 32px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-banner::before {
+  content:'';
+  position:absolute; top:-40px; right:-40px;
+  width:180px; height:180px;
+  background: radial-gradient(circle, rgba(91,171,212,0.18), transparent 70%);
+  border-radius:50%; pointer-events:none;
+}
+.hero-banner::after {
+  content:'';
+  position:absolute; bottom:-50px; left:-30px;
+  width:160px; height:160px;
+  background: radial-gradient(circle, rgba(232,113,154,0.14), transparent 70%);
+  border-radius:50%; pointer-events:none;
+}
+.hero-time {
+  font-family: var(--font-display);
+  font-size: 58px; font-weight: 700;
+  line-height: 1; letter-spacing: -2px;
+  color: var(--pink);
+  margin-bottom: 5px;
+  position: relative; z-index:1;
+}
+.hero-date { font-size: 14px; color: var(--muted); position:relative; z-index:1; }
+.hero-next { margin-top: 18px; position:relative; z-index:1; }
+.next-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.7);
+  border: 1.5px solid var(--border2);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 13px; color: var(--blue);
+  backdrop-filter: blur(4px);
+}
+.next-dot {
+  width: 7px; height: 7px;
+  background: var(--blue); border-radius: 50%;
+  animation: pulse 1.6s infinite; flex-shrink:0;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+/* ── ADD CTA ── */
+.add-cta {
+  width: 100%;
+  background: linear-gradient(135deg, var(--pink) 0%, var(--pink-soft) 100%);
+  color: #fff;
+  border: none; border-radius: var(--radius);
+  padding: 15px 24px;
+  font-family: var(--font-body);
+  font-size: 15px; font-weight: 700;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  transition: all .2s;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 14px rgba(232,113,154,0.3);
+}
+.add-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(232,113,154,0.4); }
+
+/* ── SECTION TITLE ── */
+.section-title {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 2px;
+  color: var(--muted); margin-bottom: 14px;
+}
+
+/* ── REMINDER CARDS ── */
+.reminders-list { display:flex; flex-direction:column; gap:10px; }
+.reminder-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  display: flex; align-items: center; gap: 14px;
+  transition: all .2s;
+  position: relative; overflow: hidden;
+}
+.reminder-card::before {
+  content:''; position:absolute; left:0; top:0; bottom:0;
+  width: 4px; background: var(--pink); border-radius: 4px 0 0 4px;
+}
+.reminder-card.inactive { opacity: .45; }
+.reminder-card.inactive::before { background: var(--muted); }
+.reminder-card:hover { border-color: var(--pink-soft); transform: translateX(3px); box-shadow: 0 3px 14px rgba(232,113,154,0.12); }
+
+.cat-icon {
+  width: 42px; height: 42px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.reminder-info { flex:1; min-width:0; }
+.reminder-title {
+  font-size: 15px; font-weight: 700;
+  margin-bottom: 5px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  color: var(--text);
+}
+.reminder-meta { font-size: 12px; color: var(--muted); display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+.meta-pill {
+  background: var(--pink-pale);
+  border: 1px solid var(--border);
+  border-radius: 6px; padding: 2px 8px; font-size: 11px; color: var(--pink);
+}
+.meta-pill.blue { background: var(--blue-pale); border-color: var(--border2); color: var(--blue); }
+.reminder-time {
+  font-family: var(--font-display);
+  font-size: 17px; font-weight: 700;
+  color: var(--blue); white-space: nowrap; flex-shrink:0;
+}
+.reminder-actions { display:flex; gap:6px; flex-shrink:0; }
+.icon-btn {
+  width: 32px; height: 32px; border-radius: 8px; border: none;
+  background: var(--pink-pale); color: var(--pink-soft);
+  cursor: pointer; display:flex; align-items:center; justify-content:center;
+  font-size: 14px; transition: all .15s;
+}
+.icon-btn:hover { background: var(--pink); color: #fff; }
+.icon-btn.del { background: #fde8ec; color: #e0a0a8; }
+.icon-btn.del:hover { background: var(--danger); color: #fff; }
+
+.empty-state { text-align:center; padding:56px 20px; color: var(--muted); }
+.empty-state .empty-icon { font-size:46px; margin-bottom:12px; }
+.empty-state p { font-size:15px; }
+
+/* ── CAT ICON BG COLORS ── */
+.cat-fitness  { background: rgba(91,188,160,0.15); }
+.cat-skincare { background: rgba(232,113,154,0.15); }
+.cat-study    { background: rgba(91,171,212,0.15); }
+.cat-health   { background: rgba(255,183,77,0.15); }
+.cat-default  { background: rgba(180,180,200,0.12); }
+
+/* ── MODAL ── */
+.modal-overlay {
+  display:none; position:fixed; inset:0; z-index:100;
+  background: rgba(58,37,53,0.35);
+  backdrop-filter: blur(6px);
+  align-items:center; justify-content:center;
+}
+.modal-overlay.open { display:flex; }
+.modal {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 24px; padding: 30px;
+  width: min(500px,94vw); max-height: 90vh; overflow-y:auto;
+  animation: popIn .25s cubic-bezier(.175,.885,.32,1.275);
+  box-shadow: 0 20px 60px rgba(232,113,154,0.18);
+}
+@keyframes popIn { from{opacity:0;transform:scale(.93)} to{opacity:1;transform:scale(1)} }
+.modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:22px; }
+.modal-title { font-size:19px; font-weight:700; color: var(--text); }
+.modal-close {
+  background: var(--pink-pale); border: none; color: var(--pink);
+  width:32px; height:32px; border-radius:8px; cursor:pointer;
+  font-size:15px; display:flex; align-items:center; justify-content:center; transition:all .15s;
+}
+.modal-close:hover { background: var(--pink); color:#fff; }
+
+/* ── FORM ── */
+.form-group { margin-bottom:16px; }
+.form-label {
+  display:block; font-size:11px; font-weight:700;
+  color: var(--muted); text-transform:uppercase; letter-spacing:.8px; margin-bottom:7px;
+}
+.form-input, .form-select {
+  width:100%; background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 11px 14px;
+  color: var(--text); font-family:var(--font-body); font-size:14px;
+  transition: border .15s, box-shadow .15s;
+  appearance:none; -webkit-appearance:none;
+}
+.form-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239b7a8a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 12px center; padding-right:34px;
+}
+.form-input:focus, .form-select:focus {
+  outline:none; border-color: var(--pink); box-shadow: 0 0 0 3px rgba(232,113,154,0.12);
+}
+.form-input::placeholder { color: #c4aab5; }
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+.days-row { display:flex; gap:6px; flex-wrap:wrap; }
+.day-btn {
+  font-size:12px; font-weight:600;
+  padding: 6px 11px; border-radius:8px;
+  border: 1.5px solid var(--border);
+  background: var(--bg); color: var(--muted);
+  cursor:pointer; transition:all .15s;
+}
+.day-btn.selected { background: var(--blue-pale); border-color: var(--blue); color: var(--blue); }
+.day-btn.daily-btn.selected { background: var(--pink-pale); border-color: var(--pink); color: var(--pink); }
+
+.submit-btn {
+  width:100%; padding:13px;
+  background: linear-gradient(135deg, var(--pink), var(--pink-soft));
+  color:#fff; border:none; border-radius:12px;
+  font-size:15px; font-weight:700;
+  cursor:pointer; transition:all .2s; margin-top:8px;
+  box-shadow: 0 4px 14px rgba(232,113,154,0.28);
+}
+.submit-btn:hover { transform:translateY(-1px); box-shadow: 0 6px 18px rgba(232,113,154,0.38); }
+
+.err { color:var(--danger); font-size:12px; margin-top:5px; min-height:16px; }
+
+/* ── SUGGESTIONS ── */
+.suggestions-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:18px; }
+@media(max-width:500px){ .suggestions-grid{grid-template-columns:1fr;} }
+.suggestion-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius); padding:16px; cursor:pointer; transition:all .2s;
+  position:relative;
+}
+.suggestion-card:hover { border-color: var(--pink-soft); transform:translateY(-2px); box-shadow:0 4px 16px rgba(232,113,154,0.14); }
+.suggestion-card.top-pick {
+  border-color: var(--blue-soft);
+  background: linear-gradient(135deg, #f5faff, #e8f5fd);
+}
+.top-badge {
+  position:absolute; top:11px; right:11px;
+  background: var(--blue); color:#fff;
+  font-size:9px; font-weight:700; padding:2px 7px; border-radius:6px; letter-spacing:.6px;
+}
+.sug-label { font-size:14px; font-weight:700; color:var(--text); margin-bottom:5px; }
+.sug-score { font-size:12px; color:var(--muted); }
+.sug-bar { height:3px; background:var(--border); border-radius:2px; margin-top:8px; }
+.sug-bar-fill { height:100%; background: linear-gradient(90deg, var(--pink), var(--blue)); border-radius:2px; transition:width .4s ease; }
+
+/* ── MANAGE ── */
+.manage-section { margin-bottom:28px; }
+.add-row { display:flex; gap:10px; }
+.add-row .form-input { flex:1; }
+.add-btn {
+  background: var(--blue); color:#fff; border:none;
+  padding: 10px 18px; border-radius:10px;
+  font-size:14px; font-weight:600; cursor:pointer; transition:all .15s; white-space:nowrap;
+}
+.add-btn:hover { background: #4a98c0; }
+
+.manage-cat-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom:10px;
+}
+.cat-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.cat-name { font-size:14px; font-weight:700; color:var(--text); }
+.delete-cat-btn {
+  background: #fde8ec; border: 1px solid #f5c0c8; color:var(--danger);
+  border-radius:7px; padding:4px 10px; font-size:12px; cursor:pointer; transition:all .15s;
+}
+.delete-cat-btn:hover { background:var(--danger); color:#fff; }
+.cat-tasks { display:flex; flex-wrap:wrap; gap:6px; }
+.cat-task-tag {
+  background: var(--blue-pale); border:1.5px solid var(--border2);
+  border-radius:8px; padding:3px 10px; font-size:12px; color:var(--blue);
+}
+.cat-task-tag.empty-note { color:var(--muted); font-size:12px; }
+
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="logo">remind<span>ly</span></div>
+    <div class="header-right">
+      <button type="button" id="notif-btn" onclick="requestNotificationPermission()" title="Enable notifications">🔔</button>
+      <nav class="nav-tabs">
+        <button type="button" class="nav-tab active" onclick="switchView('reminders',this)">Reminders</button>
+        <button type="button" class="nav-tab" onclick="switchView('suggestions',this)">AI Suggestions</button>
+        <button type="button" class="nav-tab" onclick="switchView('manage',this)">Manage</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ═══ REMINDERS VIEW ═══ -->
+  <div id="view-reminders" class="view active">
+
+    <div class="hero-banner">
+      <div class="hero-time" id="clock"></div>
+      <div class="hero-date" id="datestr"></div>
+      <div class="hero-next">
+        <div class="next-pill">
+          <span class="next-dot"></span>
+          <span id="next-text">No upcoming reminders</span>
+        </div>
+      </div>
+    </div>
+
+    <button type="button" class="add-cta" onclick="openModal()">
+      <span style="font-size:20px;line-height:1;">+</span> New Reminder
+    </button>
+
+    <div class="section-title">Your Reminders</div>
+    <div class="reminders-list" id="reminders-list">
+      <div class="empty-state">
+        <div class="empty-icon">🌸</div>
+        <p>No reminders yet — add your first one!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SUGGESTIONS VIEW ═══ -->
+  <div id="view-suggestions" class="view">
+    <div class="section-title" style="margin-bottom:16px;">Smart Timing Suggestions</div>
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <select class="form-select" id="sug-category" onchange="loadSuggestions()"></select>
+    </div>
+    <div id="suggestions-grid" class="suggestions-grid"></div>
+    <div id="sug-status" style="color:var(--success);font-size:13px;margin-top:10px;min-height:18px;"></div>
+  </div>
+
+  <!-- ═══ MANAGE VIEW ═══ -->
+  <div id="view-manage" class="view">
+    <div class="manage-section">
+      <div class="section-title">Categories</div>
+      <div id="manage-cats-list"></div>
+      <div class="add-row" style="margin-top:14px;">
+        <input class="form-input" id="new-cat-input" placeholder="New category name…"/>
+        <button type="button" class="add-btn" onclick="addCategory()">+ Category</button>
+      </div>
+      <div class="err" id="cat-err"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ ADD REMINDER MODAL ═══ -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-inner">
+    <div class="modal-header">
+      <div class="modal-title">New Reminder</div>
+      <button type="button" class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <!-- Task name IS the reminder -->
+    <div class="form-group">
+      <label class="form-label">Task</label>
+      <input class="form-input" id="r-task-name" placeholder="e.g. Morning workout, Take vitamins…"/>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <select class="form-select" id="r-category"></select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Time</label>
+      <input type="time" class="form-input" id="r-time"/>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Repeat</label>
+      <div class="days-row">
+        <button type="button" class="day-btn daily-btn" onclick="toggleDay('Daily')">Daily</button>
+        <button type="button" class="day-btn" onclick="toggleDay('Mon')">Mon</button>
+        <button type="button" class="day-btn" onclick="toggleDay('Tue')">Tue</button>
+        <button type="button" class="day-btn" onclick="toggleDay('Wed')">Wed</button>
+        <button type="button" class="day-btn" onclick="toggleDay('Thu')">Thu</button>
+        <button type="button" class="day-btn" onclick="toggleDay('Fri')">Fri</button>
+        <button type="button" class="day-btn" onclick="toggleDay('Sat')">Sat</button>
+        <button type="button" class="day-btn" onclick="toggleDay('Sun')">Sun</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Note (optional)</label>
+      <input class="form-input" id="r-note" placeholder="Any extra details…"/>
+    </div>
+
+    <div class="err" id="modal-err"></div>
+    <button type="button" class="submit-btn" onclick="saveReminder()">Save Reminder</button>
+  </div>
+</div>
+
+
+<script src="/static/script.js"></script>
+</body>
+</html>
